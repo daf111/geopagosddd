@@ -2,7 +2,12 @@
 
 current-dir := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
-build: deps start
+build: deps cache-dirs start
+
+cache-dirs: 
+	@mkdir -p $(current-dir)/apps/mooc/backend/var/cache
+	@mkdir -p  $(current-dir)/apps/mooc/backend/var/log
+	@chmod -f -R 777 $(current-dir)/apps/mooc/backend/var || :
 
 deps: composer-install
 
@@ -11,7 +16,7 @@ composer-install: CMD=install
 composer-update: CMD=update
 composer composer-install composer-update:
 	@docker run --rm --interactive --volume $(current-dir):/app --user $(id -u):$(id -g) \
-		clevyr/prestissimo $(CMD) \
+		yonex/prestissimo:0.1.1 $(CMD) \
 			--ignore-platform-reqs \
 			--no-ansi \
 			--no-interaction
